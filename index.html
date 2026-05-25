@@ -79,7 +79,7 @@
 </button>
 <!-- Main Water Button -->
 <div class="relative -top-10">
-<button class="w-20 h-20 bg-green-700 rounded-full shadow-2xl shadow-green-900/40 flex flex-col items-center justify-center transform active:scale-90 transition-all duration-200 group" onclick="handleReport()">
+<button class="w-20 h-20 bg-green-700 rounded-full shadow-2xl shadow-green-900/40 flex flex-col items-center justify-center transform active:scale-90 transition-all duration-200 group" onclick="handleReport(event)">
 <div class="text-white text-3xl group-hover:animate-bounce">💧</div>
 <span class="text-white text-[10px] font-bold mt-1">お水やり</span>
 </button>
@@ -157,17 +157,52 @@
             });
         }
 
-        function handleReport() {
-            // お水やり（報告）アクション
-            // 本来はここからGASへPOST送信
-            console.log('Reporting...');
+       async function handleReport(event) {
+
+    try {
+
+        const reportData = {
+            staff: "匿名",
+            content: "ヒヤリ報告",
+            location: "現場"
+        };
+
+        const response = await fetch(GAS_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(reportData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+
             updateUI(currentCount + 1);
-            
-            // 演出用
+
             const btn = event.currentTarget;
+
             btn.classList.add('ring-4', 'ring-green-300');
-            setTimeout(() => btn.classList.remove('ring-4', 'ring-green-300'), 500);
+
+            setTimeout(() => {
+                btn.classList.remove('ring-4', 'ring-green-300');
+            }, 500);
+
+        } else {
+
+            alert('保存に失敗しました');
+
         }
+
+    } catch(error) {
+
+        console.error(error);
+
+        alert('通信エラー');
+
+    }
+}
 
         window.onload = init;
     </script>
