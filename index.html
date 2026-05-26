@@ -168,13 +168,9 @@
         };
 
         const response = await fetch(GAS_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(reportData)
-        });
-
+    method: "POST",
+    body: JSON.stringify(reportData)
+});
         const result = await response.json();
 
         if (result.success) {
