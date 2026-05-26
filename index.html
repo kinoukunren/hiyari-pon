@@ -171,9 +171,8 @@
     method: "POST",
     body: JSON.stringify(reportData)
 });
-        const result = await response.json();
-
-        if (result.success) {
+       
+       if (response.ok) {
 
             updateUI(currentCount + 1);
 
