@@ -111,10 +111,29 @@
         let currentCount = 0;
 
         // --- 初期化 ---
-        async function init() {
-            // 本来はGASから取得するが、デモ用に0からスタート
-            updateUI(0);
-        }
+       async function init() {
+
+    try {
+
+        const response = await fetch(GAS_URL);
+
+        const data = await response.json();
+
+        const count = data.total || 0;
+
+        updateUI(count);
+
+        updateFeedback(data.reports || []);
+
+    } catch(error) {
+
+        console.log(error);
+
+        updateUI(0);
+
+    }
+
+}
 
         function updateUI(count) {
             currentCount = count;
@@ -156,6 +175,38 @@
                 }
             });
         }
+        function updateFeedback(reports) {
+
+    const container = document.getElementById('feedback-list');
+
+    if (!reports.length) {
+
+        container.innerHTML = `
+            <p class="italic text-center py-4">
+                まだ報告がありません
+            </p>
+        `;
+
+        return;
+
+    }
+
+    container.innerHTML = reports
+        .slice(0, 5)
+        .map(report => `
+            <div class="bg-green-50 rounded-xl p-3 mb-2">
+                <p class="font-bold text-green-800">
+                    ${report.staff || '匿名'}
+                </p>
+
+                <p class="text-sm text-gray-600">
+                    ${report.content || 'ヒヤリ報告'}
+                </p>
+            </div>
+        `)
+        .join('');
+
+}
 
        async function handleReport(event) {
 
