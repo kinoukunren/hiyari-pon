@@ -1,117 +1,300 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>ヒヤリポン - 賑やかなお庭</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Noto+Sans+JP:wght@400;700&amp;display=swap" rel="stylesheet"/>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap"
+    rel="stylesheet"
+/>
+
 <style>
-        :root {
-            --surface: #f3faff;
-            --primary: #2e7d32;
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
-            background-color: var(--surface);
-            color: #1a1c1e;
-        }
-        @keyframes sparkle {
-            0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
-            50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
-        }
-        .animate-sparkle {
-            animation: sparkle 3s infinite;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-    </style>
+
+:root {
+    --surface: #f3faff;
+    --primary: #2e7d32;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+    background-color: var(--surface);
+    color: #1a1c1e;
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.5) rotate(0deg);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2) rotate(180deg);
+    }
+}
+
+.animate-sparkle {
+    animation: sparkle 3s infinite;
+}
+
+.glass-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+</style>
 </head>
+
 <body class="min-h-screen pb-24">
+
 <!-- Header -->
 <header class="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md z-50 px-4 h-16 flex items-center justify-between border-b border-gray-100">
-<div class="flex items-center gap-2">
-<span class="text-2xl">🫘</span>
-<h1 class="text-xl font-bold text-green-800">ヒヤリポン</h1>
-</div>
-<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-green-100">
-<img alt="Avatar" src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"/>
-</div>
+
+    <div class="flex items-center gap-2">
+        <span class="text-2xl">🫘</span>
+        <h1 class="text-xl font-bold text-green-800">
+            ヒヤリポン
+        </h1>
+    </div>
+
+    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-green-100">
+        <img
+            alt="Avatar"
+            src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"
+        />
+    </div>
+
 </header>
+
 <main class="pt-24 px-4 max-w-md mx-auto">
-<!-- Status Card -->
-<div class="glass-card rounded-3xl p-8 text-center shadow-xl shadow-green-900/5 relative overflow-hidden mb-6">
-<!-- Background Decorations (Hidden by default, shown via JS) -->
-<div class="absolute inset-0 pointer-events-none" id="deco-container"></div>
-<p class="text-sm font-bold text-green-600 mb-2" id="stage-label">成長中...</p>
-<div class="relative inline-block mb-4">
-<div class="text-8xl transition-all duration-500 transform scale-110" id="current-icon">🫘</div>
-</div>
-<div class="space-y-4">
-<div class="flex justify-between items-end text-xs font-bold text-gray-400">
-<span>次の成長まで</span>
-<span class="text-green-700 text-lg" id="report-count-text">0 / 3</span>
-</div>
-<div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-<div class="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-1000" id="growth-progress" style="width: 0%"></div>
-</div>
-</div>
-</div>
-<!-- Feedback Section -->
-<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-<h2 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-<span>💬</span> 最新のフィードバック
-            </h2>
-<div class="space-y-3 text-sm text-gray-600" id="feedback-list">
-<p class="italic text-center py-4">読み込み中...</p>
-</div>
-</div>
+
+    <!-- Status Card -->
+    <div class="glass-card rounded-3xl p-8 text-center shadow-xl shadow-green-900/5 relative overflow-hidden mb-6">
+
+        <div
+            class="absolute inset-0 pointer-events-none"
+            id="deco-container"
+        ></div>
+
+        <p
+            class="text-sm font-bold text-green-600 mb-2"
+            id="stage-label"
+        >
+            成長中...
+        </p>
+
+        <div class="relative inline-block mb-4">
+            <div
+                class="text-8xl transition-all duration-500 transform scale-110"
+                id="current-icon"
+            >
+                🫘
+            </div>
+        </div>
+
+        <div class="space-y-4">
+
+            <div class="flex justify-between items-end text-xs font-bold text-gray-400">
+
+                <span>次の成長まで</span>
+
+                <span
+                    class="text-green-700 text-lg"
+                    id="report-count-text"
+                >
+                    0 / 3
+                </span>
+
+            </div>
+
+            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+
+                <div
+                    class="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-1000"
+                    id="growth-progress"
+                    style="width:0%"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Report Form -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+
+        <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <span>📝</span>
+            ヒヤリ報告
+        </h2>
+
+        <div class="space-y-4">
+
+            <div>
+
+                <label class="text-sm font-bold text-gray-600">
+                    名前
+                </label>
+
+                <select
+                    id="staff-input"
+                    class="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+                >
+                    <option value="">
+                        職員を選択
+                    </option>
+                </select>
+
+            </div>
+
+            <div>
+
+                <label class="text-sm font-bold text-gray-600">
+                    内容
+                </label>
+
+                <textarea
+                    id="content-input"
+                    placeholder="ヒヤリ内容を入力"
+                    class="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 h-28 resize-none"
+                ></textarea>
+
+            </div>
+
+            <div>
+
+                <label class="text-sm font-bold text-gray-600">
+                    場所
+                </label>
+
+                <input
+                    id="location-input"
+                    type="text"
+                    placeholder="例：4W"
+                    class="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+                />
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Feedback Section -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+
+        <h2 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+            <span>💬</span>
+            最新のフィードバック
+        </h2>
+
+        <div
+            class="space-y-3 text-sm text-gray-600"
+            id="feedback-list"
+        >
+            <p class="italic text-center py-4">
+                読み込み中...
+            </p>
+        </div>
+
+    </div>
+
 </main>
-<!-- Navigation & Action -->
+
+<!-- Navigation -->
 <nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 px-6 py-4 flex justify-between items-center z-50">
-<button class="flex flex-col items-center gap-1 text-green-700">
-<span class="text-2xl">🏡</span>
-<span class="text-[10px] font-bold">お庭</span>
-</button>
-<!-- Main Water Button -->
-<div class="relative -top-10">
-<button class="w-20 h-20 bg-green-700 rounded-full shadow-2xl shadow-green-900/40 flex flex-col items-center justify-center transform active:scale-90 transition-all duration-200 group" onclick="handleReport(event)">
-<div class="text-white text-3xl group-hover:animate-bounce">💧</div>
-<span class="text-white text-[10px] font-bold mt-1">お水やり</span>
-</button>
-</div>
-<button class="flex flex-col items-center gap-1 text-gray-400">
-<span class="text-2xl">🌳</span>
-<span class="text-[10px] font-bold">みんなの森</span>
-</button>
+
+    <button class="flex flex-col items-center gap-1 text-green-700">
+
+        <span class="text-2xl">🏡</span>
+
+        <span class="text-[10px] font-bold">
+            お庭
+        </span>
+
+    </button>
+
+    <!-- Water Button -->
+    <div class="relative -top-10">
+
+        <button
+            class="w-20 h-20 bg-green-700 rounded-full shadow-2xl shadow-green-900/40 flex flex-col items-center justify-center transform active:scale-90 transition-all duration-200 group"
+            onclick="handleReport(event)"
+        >
+
+            <div class="text-white text-3xl group-hover:animate-bounce">
+                💧
+            </div>
+
+            <span class="text-white text-[10px] font-bold mt-1">
+                お水やり
+            </span>
+
+        </button>
+
+    </div>
+
+    <button class="flex flex-col items-center gap-1 text-gray-400">
+
+        <span class="text-2xl">🌳</span>
+
+        <span class="text-[10px] font-bold">
+            みんなの森
+        </span>
+
+    </button>
+
 </nav>
+
 <script>
-        // --- 設定エリア ---
-       const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVveYp1gM7_8awKcU6uxJFyjxaDYY0O6McvX2G_tM6oanXe3tJLh1_ahmyMrRSS0d4/exec';
-        
-        const growthStages = [
-            { threshold: 0, label: '種', icon: '🫘' },
-            { threshold: 3, label: '双葉', icon: '🌱' },
-            { threshold: 7, label: 'つぼみ', icon: '☘️' },
-            { threshold: 12, label: '開花', icon: '🌸' },
-            { threshold: 20, label: '満開', icon: '🌺' }
-        ];
 
-        const decorations = [
-            { count: 13, emoji: '🦋' },
-            { count: 16, emoji: '🐦' },
-            { count: 19, emoji: '🌈' },
-            { count: 22, emoji: '✨' }
-        ];
+// ----------------------------------
+// GAS URL
+// ----------------------------------
 
-        let currentCount = 0;
+const GAS_URL =
+'https://script.google.com/macros/s/AKfycbwVveYp1gM7_8awKcU6uxJFyjxaDYY0O6McvX2G_tM6oanXe3tJLh1_ahmyMrRSS0d4/exec';
 
-        // --- 初期化 ---
-       async function init() {
+// ----------------------------------
+// Growth Stages
+// ----------------------------------
+
+const growthStages = [
+
+    { threshold: 0, label: '種', icon: '🫘' },
+    { threshold: 3, label: '双葉', icon: '🌱' },
+    { threshold: 7, label: 'つぼみ', icon: '☘️' },
+    { threshold: 12, label: '開花', icon: '🌸' },
+    { threshold: 20, label: '満開', icon: '🌺' }
+
+];
+
+// ----------------------------------
+// Decorations
+// ----------------------------------
+
+const decorations = [
+
+    { count: 13, emoji: '🦋' },
+    { count: 16, emoji: '🐦' },
+    { count: 19, emoji: '🌈' },
+    { count: 22, emoji: '✨' }
+
+];
+
+let currentCount = 0;
+
+// ----------------------------------
+// Init
+// ----------------------------------
+
+async function init() {
 
     try {
 
@@ -125,6 +308,8 @@
 
         updateFeedback(data.reports || []);
 
+        await loadStaff();
+
     } catch(error) {
 
         console.log(error);
@@ -135,49 +320,101 @@
 
 }
 
-        function updateUI(count) {
-            currentCount = count;
-            const stage = [...growthStages].reverse().find(s => count >= s.threshold);
-            const nextStage = growthStages[growthStages.indexOf(stage) + 1];
+// ----------------------------------
+// UI Update
+// ----------------------------------
 
-            // アイコンとラベル更新
-            document.getElementById('current-icon').innerText = stage.icon;
-            document.getElementById('stage-label').innerText = stage.label + " フェーズ";
+function updateUI(count) {
 
-            // ゲージ更新
-            if (nextStage) {
-                const diff = nextStage.threshold - stage.threshold;
-                const progress = ((count - stage.threshold) / diff) * 100;
-                document.getElementById('growth-progress').style.width = `${progress}%`;
-                document.getElementById('report-count-text').innerText = `${count} / ${nextStage.threshold}`;
-            } else {
-                document.getElementById('growth-progress').style.width = '100%';
-                document.getElementById('report-count-text').innerText = `${count} 達成！`;
-            }
+    currentCount = count;
 
-            // デコレーション追加
-            updateDecorations(count);
+    const stage =
+        [...growthStages]
+        .reverse()
+        .find(s => count >= s.threshold);
+
+    const nextStage =
+        growthStages[growthStages.indexOf(stage) + 1];
+
+    document.getElementById('current-icon').innerText =
+        stage.icon;
+
+    document.getElementById('stage-label').innerText =
+        stage.label + ' フェーズ';
+
+    if (nextStage) {
+
+        const diff =
+            nextStage.threshold - stage.threshold;
+
+        const progress =
+            ((count - stage.threshold) / diff) * 100;
+
+        document.getElementById('growth-progress')
+            .style.width = `${progress}%`;
+
+        document.getElementById('report-count-text')
+            .innerText =
+            `${count} / ${nextStage.threshold}`;
+
+    } else {
+
+        document.getElementById('growth-progress')
+            .style.width = '100%';
+
+        document.getElementById('report-count-text')
+            .innerText = `${count} 達成！`;
+
+    }
+
+    updateDecorations(count);
+
+}
+
+// ----------------------------------
+// Decorations
+// ----------------------------------
+
+function updateDecorations(count) {
+
+    const container =
+        document.getElementById('deco-container');
+
+    container.innerHTML = '';
+
+    decorations.forEach((deco, index) => {
+
+        if (count >= deco.count) {
+
+            const el = document.createElement('div');
+
+            el.className =
+                'absolute text-2xl animate-sparkle';
+
+            el.innerText = deco.emoji;
+
+            el.style.left =
+                `${(index * 25) + 10}%`;
+
+            el.style.top =
+                `${(index % 2) * 20 + 10}%`;
+
+            container.appendChild(el);
+
         }
 
-        function updateDecorations(count) {
-            const container = document.getElementById('deco-container');
-            container.innerHTML = '';
-            
-            decorations.forEach((deco, index) => {
-                if (count >= deco.count) {
-                    const el = document.createElement('div');
-                    el.className = 'absolute text-2xl animate-sparkle';
-                    el.innerText = deco.emoji;
-                    // ランダムな配置
-                    el.style.left = `${(index * 25) + 10}%`;
-                    el.style.top = `${(index % 2) * 20 + 10}%`;
-                    container.appendChild(el);
-                }
-            });
-        }
-        function updateFeedback(reports) {
+    });
 
-    const container = document.getElementById('feedback-list');
+}
+
+// ----------------------------------
+// Feedback
+// ----------------------------------
+
+function updateFeedback(reports) {
+
+    const container =
+        document.getElementById('feedback-list');
 
     if (!reports.length) {
 
@@ -194,7 +431,9 @@
     container.innerHTML = reports
         .slice(0, 5)
         .map(report => `
+
             <div class="bg-green-50 rounded-xl p-3 mb-2">
+
                 <p class="font-bold text-green-800">
                     ${report.staff || '匿名'}
                 </p>
@@ -202,50 +441,118 @@
                 <p class="text-sm text-gray-600">
                     ${report.content || 'ヒヤリ報告'}
                 </p>
+
             </div>
+
         `)
         .join('');
 
 }
 
-       async function handleReport(event) {
+// ----------------------------------
+// Staff Load
+// ----------------------------------
+
+async function loadStaff() {
+
+    try {
+
+        const response =
+            await fetch(GAS_URL + '?action=staff');
+
+        const data = await response.json();
+
+        const select =
+            document.getElementById('staff-input');
+
+        data.staff.forEach(staff => {
+
+            const option =
+                document.createElement('option');
+
+            option.value = staff.name;
+
+            option.textContent =
+                `${staff.name} (${staff.unit})`;
+
+            select.appendChild(option);
+
+        });
+
+    } catch(error) {
+
+        console.log(error);
+
+    }
+
+}
+
+// ----------------------------------
+// Report
+// ----------------------------------
+
+async function handleReport(event) {
 
     try {
 
         const reportData = {
-            staff: "匿名",
-            content: "ヒヤリ報告",
-            location: "現場"
+
+            staff:
+                document.getElementById('staff-input').value || '匿名',
+
+            content:
+                document.getElementById('content-input').value || 'ヒヤリ報告',
+
+            location:
+                document.getElementById('location-input').value || '現場'
+
         };
 
         const response = await fetch(GAS_URL, {
-    method: "POST",
-    body: JSON.stringify(reportData)
-});
-       
-       if (response.ok) {
+
+            method: 'POST',
+
+            body: JSON.stringify(reportData)
+
+        });
+
+        if (response.ok) {
 
             updateUI(currentCount + 1);
 
             const btn = event.currentTarget;
 
-            btn.classList.add('ring-4', 'ring-green-300');
+            btn.classList.add(
+                'ring-4',
+                'ring-green-300'
+            );
 
             setTimeout(() => {
-                btn.classList.remove('ring-4', 'ring-green-300');
+
+                btn.classList.remove(
+                    'ring-4',
+                    'ring-green-300'
+                );
+
             }, 500);
 
-        } 
+            init();
+
+            document.getElementById('content-input').value = '';
+
+        }
 
     } catch(error) {
 
-        console.error(error);
+        console.log(error);
 
-       
     }
+
 }
 
-        window.onload = init;
-    </script>
+window.onload = init;
+
+</script>
+
 </body>
 </html>
