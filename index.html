@@ -1,558 +1,502 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ヒヤリポン - 賑やかなお庭</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap"
-    rel="stylesheet"
-/>
-
-<style>
-
-:root {
-    --surface: #f3faff;
-    --primary: #2e7d32;
-}
-
-body {
-    font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
-    background-color: var(--surface);
-    color: #1a1c1e;
-}
-
-@keyframes sparkle {
-    0%, 100% {
-        opacity: 0;
-        transform: scale(0.5) rotate(0deg);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.2) rotate(180deg);
-    }
-}
-
-.animate-sparkle {
-    animation: sparkle 3s infinite;
-}
-
-.glass-card {
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.3);
-}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ヒヤリポン2.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; }
+    .garden-bg { background: linear-gradient(180deg, #87CEEB 0%, #98FB98 60%, #90EE90 100%); }
+  </style>
 </head>
+<body class="bg-gray-50">
 
-<body class="min-h-screen pb-24">
+<!-- ログイン画面 -->
+<div id="loginScreen" class="min-h-screen flex flex-col items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
+    <h1 class="text-2xl font-bold text-center text-green-600 mb-2">🌸 ヒヤリポン2.0</h1>
+    <p class="text-center text-gray-500 text-sm mb-6">安全文化を育てよう</p>
 
-<!-- Header -->
-<header class="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md z-50 px-4 h-16 flex items-center justify-between border-b border-gray-100">
-
-    <div class="flex items-center gap-2">
-        <span class="text-2xl">🫘</span>
-        <h1 class="text-xl font-bold text-green-800">
-            ヒヤリポン
-        </h1>
+    <!-- ユニット選択（初回のみ） -->
+    <div id="unitSelectArea">
+      <p class="text-sm font-medium text-gray-700 mb-2">ユニットを選択してください</p>
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <button onclick="selectUnit('専門職')" class="unit-btn bg-purple-100 text-purple-700 rounded-lg py-2 text-sm font-medium hover:bg-purple-200">専門職</button>
+        <button onclick="selectUnit('2W')" class="unit-btn bg-green-100 text-green-700 rounded-lg py-2 text-sm font-medium hover:bg-green-200">2W</button>
+        <button onclick="selectUnit('2E')" class="unit-btn bg-green-100 text-green-700 rounded-lg py-2 text-sm font-medium hover:bg-green-200">2E</button>
+        <button onclick="selectUnit('3W')" class="unit-btn bg-blue-100 text-blue-700 rounded-lg py-2 text-sm font-medium hover:bg-blue-200">3W</button>
+        <button onclick="selectUnit('3E')" class="unit-btn bg-blue-100 text-blue-700 rounded-lg py-2 text-sm font-medium hover:bg-blue-200">3E</button>
+        <button onclick="selectUnit('4W')" class="unit-btn bg-yellow-100 text-yellow-700 rounded-lg py-2 text-sm font-medium hover:bg-yellow-200">4W</button>
+        <button onclick="selectUnit('4E')" class="unit-btn bg-yellow-100 text-yellow-700 rounded-lg py-2 text-sm font-medium hover:bg-yellow-200">4E</button>
+        <button onclick="selectUnit('5W')" class="unit-btn bg-red-100 text-red-700 rounded-lg py-2 text-sm font-medium hover:bg-red-200">5W</button>
+        <button onclick="selectUnit('5E')" class="unit-btn bg-red-100 text-red-700 rounded-lg py-2 text-sm font-medium hover:bg-red-200">5E</button>
+      </div>
     </div>
 
-    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-green-100">
-        <img
-            alt="Avatar"
-            src="https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg"
-        />
+    <!-- 職員選択 -->
+    <div id="staffSelectArea" class="hidden">
+      <p class="text-sm text-gray-500 mb-1">ユニット</p>
+      <p id="unitLabel" class="text-lg font-bold text-green-600 mb-4"></p>
+      <p class="text-sm font-medium text-gray-700 mb-2">職員を選択してください</p>
+      <div id="staffList" class="space-y-2 mb-4 max-h-60 overflow-y-auto"></div>
+      <button onclick="changeUnit()" class="text-xs text-gray-400 underline">ユニットを変更する</button>
     </div>
+  </div>
+</div>
 
-</header>
+<!-- メイン画面 -->
+<div id="mainScreen" class="hidden min-h-screen flex flex-col">
 
-<main class="pt-24 px-4 max-w-md mx-auto">
-
-    <!-- Status Card -->
-    <div class="glass-card rounded-3xl p-8 text-center shadow-xl shadow-green-900/5 relative overflow-hidden mb-6">
-
-        <div
-            class="absolute inset-0 pointer-events-none"
-            id="deco-container"
-        ></div>
-
-        <p
-            class="text-sm font-bold text-green-600 mb-2"
-            id="stage-label"
-        >
-            成長中...
-        </p>
-
-        <div class="relative inline-block mb-4">
-            <div
-                class="text-8xl transition-all duration-500 transform scale-110"
-                id="current-icon"
-            >
-                🫘
-            </div>
-        </div>
-
-        <div class="space-y-4">
-
-            <div class="flex justify-between items-end text-xs font-bold text-gray-400">
-
-                <span>次の成長まで</span>
-
-                <span
-                    class="text-green-700 text-lg"
-                    id="report-count-text"
-                >
-                    0 / 3
-                </span>
-
-            </div>
-
-            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-
-                <div
-                    class="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-1000"
-                    id="growth-progress"
-                    style="width:0%"
-                ></div>
-
-            </div>
-
-        </div>
-
+  <!-- ヘッダー -->
+  <div class="bg-green-600 text-white px-4 py-3 flex items-center justify-between">
+    <div>
+      <p class="text-xs opacity-80" id="headerUnit"></p>
+      <p class="font-bold" id="headerStaff"></p>
     </div>
+    <button onclick="logout()" class="text-xs bg-green-700 px-3 py-1 rounded-full">ログアウト</button>
+  </div>
 
-    <!-- Report Form -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+  <!-- コンテンツエリア -->
+  <div id="contentArea" class="flex-1 overflow-y-auto pb-20"></div>
 
-        <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span>📝</span>
-            ヒヤリ報告
-        </h2>
-
-        <div class="space-y-4">
-
-            <div>
-
-                <label class="text-sm font-bold text-gray-600">
-                    名前
-                </label>
-
-                <select
-                    id="staff-input"
-                    class="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400"
-                >
-                    <option value="">
-                        職員を選択
-                    </option>
-                </select>
-
-            </div>
-
-            <div>
-
-                <label class="text-sm font-bold text-gray-600">
-                    内容
-                </label>
-
-                <textarea
-                    id="content-input"
-                    placeholder="ヒヤリ内容を入力"
-                    class="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 h-28 resize-none"
-                ></textarea>
-
-            </div>
-
-            <div>
-
-                <label class="text-sm font-bold text-gray-600">
-                    場所
-                </label>
-
-                <input
-                    id="location-input"
-                    type="text"
-                    placeholder="例：4W"
-                    class="w-full mt-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400"
-                />
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Feedback Section -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-
-        <h2 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-            <span>💬</span>
-            最新のフィードバック
-        </h2>
-
-        <div
-            class="space-y-3 text-sm text-gray-600"
-            id="feedback-list"
-        >
-            <p class="italic text-center py-4">
-                読み込み中...
-            </p>
-        </div>
-
-    </div>
-
-</main>
-
-<!-- Navigation -->
-<nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 px-6 py-4 flex justify-between items-center z-50">
-
-    <button class="flex flex-col items-center gap-1 text-green-700">
-
-        <span class="text-2xl">🏡</span>
-
-        <span class="text-[10px] font-bold">
-            お庭
-        </span>
-
+  <!-- ボトムナビ -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2">
+    <button onclick="showPage('garden')" class="nav-btn flex flex-col items-center text-xs text-gray-500 px-2">
+      <span class="text-xl">🏡</span><span>お庭</span>
     </button>
-
-    <!-- Water Button -->
-    <div class="relative -top-10">
-
-        <button
-            class="w-20 h-20 bg-green-700 rounded-full shadow-2xl shadow-green-900/40 flex flex-col items-center justify-center transform active:scale-90 transition-all duration-200 group"
-            onclick="handleReport(event)"
-        >
-
-            <div class="text-white text-3xl group-hover:animate-bounce">
-                💧
-            </div>
-
-            <span class="text-white text-[10px] font-bold mt-1">
-                お水やり
-            </span>
-
-        </button>
-
-    </div>
-
-    <button class="flex flex-col items-center gap-1 text-gray-400">
-
-        <span class="text-2xl">🌳</span>
-
-        <span class="text-[10px] font-bold">
-            みんなの森
-        </span>
-
+    <button onclick="showPage('report')" class="nav-btn flex flex-col items-center text-xs text-gray-500 px-2">
+      <span class="text-xl">📝</span><span>新規報告</span>
     </button>
-
-</nav>
+    <button onclick="showPage('library')" class="nav-btn flex flex-col items-center text-xs text-gray-500 px-2">
+      <span class="text-xl">📚</span><span>図書館</span>
+    </button>
+    <button onclick="showPage('forest')" class="nav-btn flex flex-col items-center text-xs text-gray-500 px-2">
+      <span class="text-xl">🌳</span><span>みんなの森</span>
+    </button>
+    <button onclick="showPage('analysis')" class="nav-btn flex flex-col items-center text-xs text-gray-500 px-2">
+      <span class="text-xl">📊</span><span>分析</span>
+    </button>
+  </div>
+</div>
 
 <script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbw5A4vzZ8cmQKnD_WLG7gUSHdL_yIbpBNURU83wlceF9CmaELiGQDAsMcCpUz3MzyQ/exec';
 
-// ----------------------------------
-// GAS URL
-// ----------------------------------
+let currentUnit = '';
+let currentStaff = null;
 
-const GAS_URL =
-'https://script.google.com/macros/s/AKfycbwVveYp1gM7_8awKcU6uxJFyjxaDYY0O6McvX2G_tM6oanXe3tJLh1_ahmyMrRSS0d4/exec';
+// 初期化
+window.onload = function() {
+  const savedUnit = localStorage.getItem('hiyariUnit');
+  if (savedUnit) {
+    currentUnit = savedUnit;
+    showStaffSelect();
+  }
+};
 
-// ----------------------------------
-// Growth Stages
-// ----------------------------------
-
-const growthStages = [
-
-    { threshold: 0, label: '種', icon: '🫘' },
-    { threshold: 3, label: '双葉', icon: '🌱' },
-    { threshold: 7, label: 'つぼみ', icon: '☘️' },
-    { threshold: 12, label: '開花', icon: '🌸' },
-    { threshold: 20, label: '満開', icon: '🌺' }
-
-];
-
-// ----------------------------------
-// Decorations
-// ----------------------------------
-
-const decorations = [
-
-    { count: 13, emoji: '🦋' },
-    { count: 16, emoji: '🐦' },
-    { count: 19, emoji: '🌈' },
-    { count: 22, emoji: '✨' }
-
-];
-
-let currentCount = 0;
-
-// ----------------------------------
-// Init
-// ----------------------------------
-
-async function init() {
-
-    try {
-
-        const response = await fetch(GAS_URL);
-
-        const data = await response.json();
-
-        const count = data.total || 0;
-
-        updateUI(count);
-
-        updateFeedback(data.reports || []);
-
-        await loadStaff();
-
-    } catch(error) {
-
-        console.log(error);
-
-        updateUI(0);
-
-    }
-
+// ユニット選択
+function selectUnit(unit) {
+  currentUnit = unit;
+  localStorage.setItem('hiyariUnit', unit);
+  showStaffSelect();
 }
 
-// ----------------------------------
-// UI Update
-// ----------------------------------
-
-function updateUI(count) {
-
-    currentCount = count;
-
-    const stage =
-        [...growthStages]
-        .reverse()
-        .find(s => count >= s.threshold);
-
-    const nextStage =
-        growthStages[growthStages.indexOf(stage) + 1];
-
-    document.getElementById('current-icon').innerText =
-        stage.icon;
-
-    document.getElementById('stage-label').innerText =
-        stage.label + ' フェーズ';
-
-    if (nextStage) {
-
-        const diff =
-            nextStage.threshold - stage.threshold;
-
-        const progress =
-            ((count - stage.threshold) / diff) * 100;
-
-        document.getElementById('growth-progress')
-            .style.width = `${progress}%`;
-
-        document.getElementById('report-count-text')
-            .innerText =
-            `${count} / ${nextStage.threshold}`;
-
-    } else {
-
-        document.getElementById('growth-progress')
-            .style.width = '100%';
-
-        document.getElementById('report-count-text')
-            .innerText = `${count} 達成！`;
-
-    }
-
-    updateDecorations(count);
-
+// ユニット変更
+function changeUnit() {
+  localStorage.removeItem('hiyariUnit');
+  currentUnit = '';
+  document.getElementById('unitSelectArea').classList.remove('hidden');
+  document.getElementById('staffSelectArea').classList.add('hidden');
 }
 
-// ----------------------------------
-// Decorations
-// ----------------------------------
+// 職員選択画面表示
+async function showStaffSelect() {
+  document.getElementById('unitSelectArea').classList.add('hidden');
+  document.getElementById('staffSelectArea').classList.remove('hidden');
+  document.getElementById('unitLabel').textContent = currentUnit;
 
-function updateDecorations(count) {
+  const staffList = document.getElementById('staffList');
+  staffList.innerHTML = '<p class="text-sm text-gray-400">読み込み中...</p>';
 
-    const container =
-        document.getElementById('deco-container');
-
-    container.innerHTML = '';
-
-    decorations.forEach((deco, index) => {
-
-        if (count >= deco.count) {
-
-            const el = document.createElement('div');
-
-            el.className =
-                'absolute text-2xl animate-sparkle';
-
-            el.innerText = deco.emoji;
-
-            el.style.left =
-                `${(index * 25) + 10}%`;
-
-            el.style.top =
-                `${(index % 2) * 20 + 10}%`;
-
-            container.appendChild(el);
-
-        }
-
+  try {
+    const res = await fetch(`${GAS_URL}?action=getStaff&unit=${encodeURIComponent(currentUnit)}`);
+    const json = await res.json();
+    staffList.innerHTML = '';
+    if (json.data.length === 0) {
+      staffList.innerHTML = '<p class="text-sm text-gray-400">職員が見つかりません</p>';
+      return;
+    }
+    json.data.forEach(staff => {
+      const btn = document.createElement('button');
+      btn.className = 'w-full text-left bg-gray-50 hover:bg-green-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700';
+      btn.textContent = staff.name;
+      btn.onclick = () => login(staff);
+      staffList.appendChild(btn);
     });
-
+  } catch(e) {
+    staffList.innerHTML = '<p class="text-sm text-red-400">読み込みに失敗しました</p>';
+  }
 }
 
-// ----------------------------------
-// Feedback
-// ----------------------------------
+// ログイン
+function login(staff) {
+  currentStaff = staff;
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('mainScreen').classList.remove('hidden');
+  document.getElementById('headerUnit').textContent = currentUnit;
+  document.getElementById('headerStaff').textContent = staff.name + ' さん';
+  showPage('garden');
+}
 
-function updateFeedback(reports) {
+// ログアウト
+function logout() {
+  currentStaff = null;
+  document.getElementById('mainScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
 
-    const container =
-        document.getElementById('feedback-list');
+// ページ切り替え
+function showPage(page) {
+  const area = document.getElementById('contentArea');
+  if (page === 'garden') showGarden(area);
+  if (page === 'report') showReport(area);
+  if (page === 'library') showLibrary(area);
+  if (page === 'forest') showForest(area);
+  if (page === 'analysis') showAnalysis(area);
+}
 
-    if (!reports.length) {
+// お庭ページ
+async function showGarden(area) {
+  area.innerHTML = '<div class="p-4 text-center text-gray-400">読み込み中...</div>';
+  try {
+    const res = await fetch(`${GAS_URL}?action=getGarden&unit=${encodeURIComponent(currentUnit)}`);
+    const json = await res.json();
+    const g = json.data;
 
-        container.innerHTML = `
-            <p class="italic text-center py-4">
-                まだ報告がありません
-            </p>
-        `;
+    const stageEmoji = {
+      '種': '🌱', '双葉': '🌿', 'つぼみ': '🌼',
+      '開花': '🌸', '満開': '🌺', '銀の庭': '⚪🌸',
+      '金の庭': '🌟🌸', '虹の庭': '🌈🌸'
+    };
 
-        return;
+    const total = g ? g.totalCount : 0;
+    const monthly = g ? g.monthlyCount : 0;
+    const stage = g ? g.stage : '種';
+    const emoji = stageEmoji[stage] || '🌱';
 
+    let nextCount = '';
+    if (total < 3) nextCount = `次の成長まであと ${3 - total} 件`;
+    else if (total < 7) nextCount = `次の成長まであと ${7 - total} 件`;
+    else if (total < 12) nextCount = `次の成長まであと ${12 - total} 件`;
+    else if (total < 20) nextCount = `次の成長まであと ${20 - total} 件`;
+    else if (total < 50) nextCount = `次の成長まであと ${50 - total} 件`;
+    else if (total < 100) nextCount = `次の成長まであと ${100 - total} 件`;
+    else if (total < 200) nextCount = `次の成長まであと ${200 - total} 件`;
+    else nextCount = '最高段階に達しました！🎉';
+
+    area.innerHTML = `
+      <div class="garden-bg min-h-64 flex flex-col items-center justify-center p-8 relative">
+        <div class="text-8xl mb-2">${emoji}</div>
+        <div class="text-white font-bold text-xl drop-shadow">${stage}</div>
+        ${g && g.butterfly ? '<span class="absolute top-4 left-8 text-3xl animate-bounce">🦋</span>' : ''}
+        ${g && g.bird ? '<span class="absolute top-4 right-8 text-3xl">🐦</span>' : ''}
+        ${g && g.star ? '<span class="absolute top-8 left-1/2 text-2xl">⭐</span>' : ''}
+        ${g && g.rainbow ? '<span class="absolute top-2 left-1/3 text-4xl">🌈</span>' : ''}
+        ${g && g.fountain ? '<span class="absolute bottom-4 right-8 text-3xl">⛲</span>' : ''}
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="bg-white rounded-xl p-4 shadow-sm">
+          <div class="grid grid-cols-3 gap-4 text-center">
+            <div><p class="text-2xl font-bold text-green-600">${monthly}</p><p class="text-xs text-gray-500">今月</p></div>
+            <div><p class="text-2xl font-bold text-green-600">${total}</p><p class="text-xs text-gray-500">累計</p></div>
+            <div><p class="text-sm font-medium text-green-600">${nextCount}</p><p class="text-xs text-gray-500">次の成長</p></div>
+          </div>
+        </div>
+        <button onclick="showPage('report')" class="w-full bg-green-500 text-white rounded-xl py-4 font-bold text-lg shadow">
+          📝 ヒヤリハットを報告する
+        </button>
+      </div>
+    `;
+  } catch(e) {
+    area.innerHTML = '<div class="p-4 text-center text-red-400">読み込みに失敗しました</div>';
+  }
+}
+
+// 新規報告ページ
+function showReport(area) {
+  area.innerHTML = `
+    <div class="p-4">
+      <h2 class="text-lg font-bold text-gray-700 mb-4">📝 新規報告</h2>
+      <div class="bg-white rounded-xl shadow-sm p-4 space-y-4">
+
+        <div>
+          <label class="text-sm font-medium text-gray-700">発生時間帯 <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            ${['早朝','午前','午後','夕方','夜間'].map(t =>
+              `<button onclick="selectOption(this,'timeSlot')" data-value="${t}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${t}</button>`
+            ).join('')}
+          </div>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-gray-700">発生場所 <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            ${['居室','トイレ','浴室','食堂','廊下','その他'].map(l =>
+              `<button onclick="selectOption(this,'location')" data-value="${l}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${l}</button>`
+            ).join('')}
+          </div>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-gray-700">発生種別 <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            ${['転倒・転落','移動・移乗','食事・服薬','利用者行動','環境・設備','気づき・提案','その他'].map(c =>
+              `<button onclick="selectCategory(this,'${c}')" data-value="${c}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${c}</button>`
+            ).join('')}
+          </div>
+        </div>
+
+        <div id="subCategoryArea" class="hidden">
+          <label class="text-sm font-medium text-gray-700">詳細分類</label>
+          <div id="subCategoryBtns" class="grid grid-cols-2 gap-2 mt-2"></div>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-gray-700">発生状況 <span class="text-red-500">*</span></label>
+          <textarea id="situation" rows="3" class="w-full mt-1 border border-gray-200 rounded-lg p-3 text-sm" placeholder="何が起きたか記載してください"></textarea>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-gray-700">対応内容</label>
+          <textarea id="response" rows="2" class="w-full mt-1 border border-gray-200 rounded-lg p-3 text-sm" placeholder="任意"></textarea>
+        </div>
+
+        <div>
+          <label class="text-sm font-medium text-gray-700">再発防止策</label>
+          <textarea id="prevention" rows="2" class="w-full mt-1 border border-gray-200 rounded-lg p-3 text-sm" placeholder="任意"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="shareOther" class="w-4 h-4">
+          <label for="shareOther" class="text-sm text-gray-700">他部署へ共有する</label>
+        </div>
+
+        <button onclick="submitReport()" class="w-full bg-green-500 text-white rounded-xl py-4 font-bold text-lg shadow">
+          報告する 🌱
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+const subCategories = {
+  '転倒・転落': ['立ち上がり','歩行','車椅子','ベッド','トイレ'],
+  '移動・移乗': ['ベッド⇔車椅子','トイレ移乗','入浴移乗'],
+  '食事・服薬': ['誤嚥','むせ','配薬ミス','飲み忘れ'],
+  '利用者行動': ['離棟','不穏','自己抜去'],
+  '環境・設備': ['床','手すり','車椅子','福祉用具']
+};
+
+let selectedValues = {};
+
+function selectOption(btn, field) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('bg-green-500','text-white');
+    b.classList.add('border-gray-200','text-gray-600');
+  });
+  btn.classList.add('bg-green-500','text-white');
+  btn.classList.remove('border-gray-200','text-gray-600');
+  selectedValues[field] = btn.dataset.value;
+}
+
+function selectCategory(btn, category) {
+  selectOption(btn, 'category');
+  const area = document.getElementById('subCategoryArea');
+  const btns = document.getElementById('subCategoryBtns');
+  if (subCategories[category]) {
+    area.classList.remove('hidden');
+    btns.innerHTML = subCategories[category].map(s =>
+      `<button onclick="selectOption(this,'subCategory')" data-value="${s}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${s}</button>`
+    ).join('');
+  } else {
+    area.classList.add('hidden');
+    selectedValues.subCategory = '';
+  }
+}
+
+async function submitReport() {
+  if (!selectedValues.timeSlot || !selectedValues.location || !selectedValues.category) {
+    alert('時間帯・発生場所・発生種別は必須です');
+    return;
+  }
+  const situation = document.getElementById('situation').value;
+  if (!situation) { alert('発生状況を入力してください'); return; }
+
+  const btn = document.querySelector('button[onclick="submitReport()"]');
+  btn.textContent = '送信中...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'addReport',
+        unit: currentUnit,
+        staffId: currentStaff.id,
+        staffName: currentStaff.name,
+        incidentTime: new Date().toISOString(),
+        timeSlot: selectedValues.timeSlot,
+        location: selectedValues.location,
+        category: selectedValues.category,
+        subCategory: selectedValues.subCategory || '',
+        situation: situation,
+        response: document.getElementById('response').value,
+        prevention: document.getElementById('prevention').value,
+        shareOther: document.getElementById('shareOther').checked
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert('報告しました！お庭が育ちます🌱');
+      selectedValues = {};
+      showPage('garden');
+    } else {
+      alert('エラーが発生しました');
+      btn.textContent = '報告する 🌱';
+      btn.disabled = false;
     }
+  } catch(e) {
+    alert('送信に失敗しました');
+    btn.textContent = '報告する 🌱';
+    btn.disabled = false;
+  }
+}
 
-    container.innerHTML = reports
-        .slice(0, 5)
-        .map(report => `
+// ヒヤリ図書館
+async function showLibrary(area) {
+  area.innerHTML = `
+    <div class="p-4">
+      <h2 class="text-lg font-bold text-gray-700 mb-4">📚 ヒヤリ図書館</h2>
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+        <input id="searchKeyword" type="text" placeholder="キーワード検索" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2">
+        <button onclick="searchReports()" class="w-full bg-green-500 text-white rounded-lg py-2 text-sm font-medium">検索</button>
+      </div>
+      <div id="reportList" class="space-y-3"></div>
+    </div>
+  `;
+  searchReports();
+}
 
-            <div class="bg-green-50 rounded-xl p-3 mb-2">
+async function searchReports() {
+  const keyword = document.getElementById('searchKeyword')?.value || '';
+  const list = document.getElementById('reportList');
+  list.innerHTML = '<p class="text-center text-gray-400 text-sm">読み込み中...</p>';
+  try {
+    const res = await fetch(`${GAS_URL}?action=getReports&keyword=${encodeURIComponent(keyword)}`);
+    const json = await res.json();
+    if (json.data.length === 0) {
+      list.innerHTML = '<p class="text-center text-gray-400 text-sm">報告がありません</p>';
+      return;
+    }
+    list.innerHTML = json.data.slice(0,20).map(r => `
+      <div class="bg-white rounded-xl shadow-sm p-4">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">${r.category}</span>
+          <span class="text-xs text-gray-400">${r.unit}</span>
+        </div>
+        <p class="text-sm text-gray-700">${r.situation}</p>
+        ${r.prevention ? `<p class="text-xs text-blue-600 mt-2">💡 ${r.prevention}</p>` : ''}
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<p class="text-center text-red-400 text-sm">読み込みに失敗しました</p>';
+  }
+}
 
-                <p class="font-bold text-green-800">
-                    ${report.staff || '匿名'}
-                </p>
-
-                <p class="text-sm text-gray-600">
-                    ${report.content || 'ヒヤリ報告'}
-                </p>
-
+// みんなの森
+async function showForest(area) {
+  area.innerHTML = '<div class="p-4 text-center text-gray-400">読み込み中...</div>';
+  try {
+    const res = await fetch(`${GAS_URL}?action=getRanking`);
+    const json = await res.json();
+    const medals = ['🥇','🥈','🥉'];
+    const stageEmoji = {
+      '種': '🌱', '双葉': '🌿', 'つぼみ': '🌼',
+      '開花': '🌸', '満開': '🌺', '銀の庭': '⚪🌸',
+      '金の庭': '🌟🌸', '虹の庭': '🌈🌸'
+    };
+    area.innerHTML = `
+      <div class="p-4">
+        <h2 class="text-lg font-bold text-gray-700 mb-4">🌳 みんなの森</h2>
+        <div class="space-y-3">
+          ${json.data.map((r, i) => `
+            <div class="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">${medals[i] || (i+1)+'位'}</span>
+                <div>
+                  <p class="font-bold text-gray-700">${r.unit}</p>
+                  <p class="text-xs text-gray-400">${r.stage} ${stageEmoji[r.stage] || ''}</p>
+                </div>
+              </div>
+              <p class="text-2xl font-bold text-green-600">${r.totalCount}<span class="text-sm text-gray-400">件</span></p>
             </div>
-
-        `)
-        .join('');
-
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    area.innerHTML = '<div class="p-4 text-center text-red-400">読み込みに失敗しました</div>';
+  }
 }
 
-// ----------------------------------
-// Staff Load
-// ----------------------------------
+// 分析ページ
+async function showAnalysis(area) {
+  area.innerHTML = '<div class="p-4 text-center text-gray-400">読み込み中...</div>';
+  try {
+    const res = await fetch(`${GAS_URL}?action=getSummary`);
+    const json = await res.json();
+    const d = json.data;
 
-async function loadStaff() {
-
-    try {
-
-        const response =
-            await fetch(GAS_URL + '?action=staff');
-
-        const data = await response.json();
-
-        const select =
-            document.getElementById('staff-input');
-
-        data.staff.forEach(staff => {
-
-            const option =
-                document.createElement('option');
-
-            option.value = staff.name;
-
-            option.textContent =
-                `${staff.name} (${staff.unit})`;
-
-            select.appendChild(option);
-
-        });
-
-    } catch(error) {
-
-        console.log(error);
-
+    function renderBar(data) {
+      const max = Math.max(...Object.values(data), 1);
+      return Object.entries(data).map(([k, v]) => `
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xs text-gray-600 w-20 shrink-0">${k}</span>
+          <div class="flex-1 bg-gray-100 rounded-full h-4">
+            <div class="bg-green-400 h-4 rounded-full" style="width:${(v/max*100).toFixed(0)}%"></div>
+          </div>
+          <span class="text-xs text-gray-600 w-6 text-right">${v}</span>
+        </div>
+      `).join('');
     }
 
+    area.innerHTML = `
+      <div class="p-4 space-y-4">
+        <h2 class="text-lg font-bold text-gray-700">📊 分析</h2>
+        <div class="bg-white rounded-xl shadow-sm p-4">
+          <h3 class="font-bold text-gray-700 mb-3">発生場所別</h3>
+          ${renderBar(d.byLocation)}
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4">
+          <h3 class="font-bold text-gray-700 mb-3">時間帯別</h3>
+          ${renderBar(d.byTimeSlot)}
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4">
+          <h3 class="font-bold text-gray-700 mb-3">発生種別</h3>
+          ${renderBar(d.byCategory)}
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-4">
+          <h3 class="font-bold text-gray-700 mb-3">ユニット別</h3>
+          ${renderBar(d.byUnit)}
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    area.innerHTML = '<div class="p-4 text-center text-red-400">読み込みに失敗しました</div>';
+  }
 }
-
-// ----------------------------------
-// Report
-// ----------------------------------
-
-async function handleReport(event) {
-
-    try {
-
-        const reportData = {
-
-            staff:
-                document.getElementById('staff-input').value || '匿名',
-
-            content:
-                document.getElementById('content-input').value || 'ヒヤリ報告',
-
-            location:
-                document.getElementById('location-input').value || '現場'
-
-        };
-
-        const response = await fetch(GAS_URL, {
-
-            method: 'POST',
-
-            body: JSON.stringify(reportData)
-
-        });
-
-        if (response.ok) {
-
-            updateUI(currentCount + 1);
-
-            const btn = event.currentTarget;
-
-            btn.classList.add(
-                'ring-4',
-                'ring-green-300'
-            );
-
-            setTimeout(() => {
-
-                btn.classList.remove(
-                    'ring-4',
-                    'ring-green-300'
-                );
-
-            }, 500);
-
-            init();
-
-            document.getElementById('content-input').value = '';
-
-        }
-
-    } catch(error) {
-
-        console.log(error);
-
-    }
-
-}
-
-window.onload = init;
-
 </script>
-
 </body>
 </html>
