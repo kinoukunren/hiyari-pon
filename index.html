@@ -8,6 +8,8 @@
   <style>
     body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; }
     .garden-bg { background: linear-gradient(180deg, #87CEEB 0%, #98FB98 60%, #90EE90 100%); }
+    .option-btn { transition: all 0.15s; }
+    .option-btn.selected { background-color: #16a34a !important; color: white !important; border-color: #16a34a !important; font-weight: bold; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -22,15 +24,15 @@
     <div id="unitSelectArea">
       <p class="text-sm font-medium text-gray-700 mb-2">ユニットを選択してください</p>
       <div class="grid grid-cols-3 gap-2 mb-4">
-        <button onclick="selectUnit('専門職')" class="unit-btn bg-purple-100 text-purple-700 rounded-lg py-2 text-sm font-medium hover:bg-purple-200">専門職</button>
-        <button onclick="selectUnit('2W')" class="unit-btn bg-green-100 text-green-700 rounded-lg py-2 text-sm font-medium hover:bg-green-200">2W</button>
-        <button onclick="selectUnit('2E')" class="unit-btn bg-green-100 text-green-700 rounded-lg py-2 text-sm font-medium hover:bg-green-200">2E</button>
-        <button onclick="selectUnit('3W')" class="unit-btn bg-blue-100 text-blue-700 rounded-lg py-2 text-sm font-medium hover:bg-blue-200">3W</button>
-        <button onclick="selectUnit('3E')" class="unit-btn bg-blue-100 text-blue-700 rounded-lg py-2 text-sm font-medium hover:bg-blue-200">3E</button>
-        <button onclick="selectUnit('4W')" class="unit-btn bg-yellow-100 text-yellow-700 rounded-lg py-2 text-sm font-medium hover:bg-yellow-200">4W</button>
-        <button onclick="selectUnit('4E')" class="unit-btn bg-yellow-100 text-yellow-700 rounded-lg py-2 text-sm font-medium hover:bg-yellow-200">4E</button>
-        <button onclick="selectUnit('5W')" class="unit-btn bg-red-100 text-red-700 rounded-lg py-2 text-sm font-medium hover:bg-red-200">5W</button>
-        <button onclick="selectUnit('5E')" class="unit-btn bg-red-100 text-red-700 rounded-lg py-2 text-sm font-medium hover:bg-red-200">5E</button>
+        <button onclick="selectUnit('専門職')" class="unit-btn bg-purple-100 text-purple-700 rounded-lg py-3 text-sm font-medium hover:bg-purple-200">専門職</button>
+        <button onclick="selectUnit('2W')" class="unit-btn bg-green-100 text-green-700 rounded-lg py-3 text-sm font-medium hover:bg-green-200">2W</button>
+        <button onclick="selectUnit('2E')" class="unit-btn bg-green-100 text-green-700 rounded-lg py-3 text-sm font-medium hover:bg-green-200">2E</button>
+        <button onclick="selectUnit('3W')" class="unit-btn bg-blue-100 text-blue-700 rounded-lg py-3 text-sm font-medium hover:bg-blue-200">3W</button>
+        <button onclick="selectUnit('3E')" class="unit-btn bg-blue-100 text-blue-700 rounded-lg py-3 text-sm font-medium hover:bg-blue-200">3E</button>
+        <button onclick="selectUnit('4W')" class="unit-btn bg-yellow-100 text-yellow-700 rounded-lg py-3 text-sm font-medium hover:bg-yellow-200">4W</button>
+        <button onclick="selectUnit('4E')" class="unit-btn bg-yellow-100 text-yellow-700 rounded-lg py-3 text-sm font-medium hover:bg-yellow-200">4E</button>
+        <button onclick="selectUnit('5W')" class="unit-btn bg-red-100 text-red-700 rounded-lg py-3 text-sm font-medium hover:bg-red-200">5W</button>
+        <button onclick="selectUnit('5E')" class="unit-btn bg-red-100 text-red-700 rounded-lg py-3 text-sm font-medium hover:bg-red-200">5E</button>
       </div>
     </div>
 
@@ -86,7 +88,6 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbw5A4vzZ8cmQKnD_WLG7gUS
 let currentUnit = '';
 let currentStaff = null;
 
-// 初期化
 window.onload = function() {
   const savedUnit = localStorage.getItem('hiyariUnit');
   if (savedUnit) {
@@ -95,14 +96,12 @@ window.onload = function() {
   }
 };
 
-// ユニット選択
 function selectUnit(unit) {
   currentUnit = unit;
   localStorage.setItem('hiyariUnit', unit);
   showStaffSelect();
 }
 
-// ユニット変更
 function changeUnit() {
   localStorage.removeItem('hiyariUnit');
   currentUnit = '';
@@ -110,7 +109,6 @@ function changeUnit() {
   document.getElementById('staffSelectArea').classList.add('hidden');
 }
 
-// 職員選択画面表示
 async function showStaffSelect() {
   document.getElementById('unitSelectArea').classList.add('hidden');
   document.getElementById('staffSelectArea').classList.remove('hidden');
@@ -123,11 +121,20 @@ async function showStaffSelect() {
     const res = await fetch(`${GAS_URL}?action=getStaff&unit=${encodeURIComponent(currentUnit)}`);
     const json = await res.json();
     staffList.innerHTML = '';
-    if (json.data.length === 0) {
+
+    // 専門職は全ユニット表示、それ以外は所属ユニットのみ
+    let filtered = json.data;
+    if (currentUnit !== '専門職') {
+      filtered = json.data.filter(s => s.unit === currentUnit);
+    } else {
+      filtered = json.data.filter(s => s.unit === '専門職');
+    }
+
+    if (filtered.length === 0) {
       staffList.innerHTML = '<p class="text-sm text-gray-400">職員が見つかりません</p>';
       return;
     }
-    json.data.forEach(staff => {
+    filtered.forEach(staff => {
       const btn = document.createElement('button');
       btn.className = 'w-full text-left bg-gray-50 hover:bg-green-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-medium text-gray-700';
       btn.textContent = staff.name;
@@ -139,7 +146,6 @@ async function showStaffSelect() {
   }
 }
 
-// ログイン
 function login(staff) {
   currentStaff = staff;
   document.getElementById('loginScreen').classList.add('hidden');
@@ -149,14 +155,12 @@ function login(staff) {
   showPage('garden');
 }
 
-// ログアウト
 function logout() {
   currentStaff = null;
   document.getElementById('mainScreen').classList.add('hidden');
   document.getElementById('loginScreen').classList.remove('hidden');
 }
 
-// ページ切り替え
 function showPage(page) {
   const area = document.getElementById('contentArea');
   if (page === 'garden') showGarden(area);
@@ -186,14 +190,14 @@ async function showGarden(area) {
     const emoji = stageEmoji[stage] || '🌱';
 
     let nextCount = '';
-    if (total < 3) nextCount = `次の成長まであと ${3 - total} 件`;
-    else if (total < 7) nextCount = `次の成長まであと ${7 - total} 件`;
-    else if (total < 12) nextCount = `次の成長まであと ${12 - total} 件`;
-    else if (total < 20) nextCount = `次の成長まであと ${20 - total} 件`;
-    else if (total < 50) nextCount = `次の成長まであと ${50 - total} 件`;
-    else if (total < 100) nextCount = `次の成長まであと ${100 - total} 件`;
-    else if (total < 200) nextCount = `次の成長まであと ${200 - total} 件`;
-    else nextCount = '最高段階に達しました！🎉';
+    if (total < 3) nextCount = `あと ${3 - total} 件`;
+    else if (total < 7) nextCount = `あと ${7 - total} 件`;
+    else if (total < 12) nextCount = `あと ${12 - total} 件`;
+    else if (total < 20) nextCount = `あと ${20 - total} 件`;
+    else if (total < 50) nextCount = `あと ${50 - total} 件`;
+    else if (total < 100) nextCount = `あと ${100 - total} 件`;
+    else if (total < 200) nextCount = `あと ${200 - total} 件`;
+    else nextCount = '最高段階🎉';
 
     area.innerHTML = `
       <div class="garden-bg min-h-64 flex flex-col items-center justify-center p-8 relative">
@@ -210,7 +214,7 @@ async function showGarden(area) {
           <div class="grid grid-cols-3 gap-4 text-center">
             <div><p class="text-2xl font-bold text-green-600">${monthly}</p><p class="text-xs text-gray-500">今月</p></div>
             <div><p class="text-2xl font-bold text-green-600">${total}</p><p class="text-xs text-gray-500">累計</p></div>
-            <div><p class="text-sm font-medium text-green-600">${nextCount}</p><p class="text-xs text-gray-500">次の成長</p></div>
+            <div><p class="text-lg font-bold text-green-600">${nextCount}</p><p class="text-xs text-gray-500">次の成長</p></div>
           </div>
         </div>
         <button onclick="showPage('report')" class="w-full bg-green-500 text-white rounded-xl py-4 font-bold text-lg shadow">
@@ -228,61 +232,61 @@ function showReport(area) {
   area.innerHTML = `
     <div class="p-4">
       <h2 class="text-lg font-bold text-gray-700 mb-4">📝 新規報告</h2>
-      <div class="bg-white rounded-xl shadow-sm p-4 space-y-4">
+      <div class="bg-white rounded-xl shadow-sm p-4 space-y-5">
 
         <div>
-          <label class="text-sm font-medium text-gray-700">発生時間帯 <span class="text-red-500">*</span></label>
-          <div class="grid grid-cols-3 gap-2 mt-2">
+          <label class="text-base font-bold text-gray-700 block mb-3">⏰ 発生時間帯 <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-3 gap-3">
             ${['早朝','午前','午後','夕方','夜間'].map(t =>
-              `<button onclick="selectOption(this,'timeSlot')" data-value="${t}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${t}</button>`
+              `<button onclick="selectOption(this,'timeSlot')" data-value="${t}" class="option-btn border-2 border-gray-200 rounded-xl py-3 text-base text-gray-600 hover:border-green-400">${t}</button>`
             ).join('')}
           </div>
         </div>
 
         <div>
-          <label class="text-sm font-medium text-gray-700">発生場所 <span class="text-red-500">*</span></label>
-          <div class="grid grid-cols-3 gap-2 mt-2">
+          <label class="text-base font-bold text-gray-700 block mb-3">📍 発生場所 <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-3 gap-3">
             ${['居室','トイレ','浴室','食堂','廊下','その他'].map(l =>
-              `<button onclick="selectOption(this,'location')" data-value="${l}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${l}</button>`
+              `<button onclick="selectOption(this,'location')" data-value="${l}" class="option-btn border-2 border-gray-200 rounded-xl py-3 text-base text-gray-600 hover:border-green-400">${l}</button>`
             ).join('')}
           </div>
         </div>
 
         <div>
-          <label class="text-sm font-medium text-gray-700">発生種別 <span class="text-red-500">*</span></label>
-          <div class="grid grid-cols-2 gap-2 mt-2">
-            ${['転倒・転落','移動・移乗','食事・服薬','利用者行動','環境・設備','気づき・提案','その他'].map(c =>
-              `<button onclick="selectCategory(this,'${c}')" data-value="${c}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${c}</button>`
+          <label class="text-base font-bold text-gray-700 block mb-3">📋 発生種別 <span class="text-red-500">*</span></label>
+          <div class="grid grid-cols-2 gap-3">
+            ${['転倒・転落','移動・移乗','食事・服薬','皮膚・外傷','利用者行動','環境・設備','気づき・提案','その他'].map(c =>
+              `<button onclick="selectCategory(this,'${c}')" data-value="${c}" class="option-btn border-2 border-gray-200 rounded-xl py-3 text-base text-gray-600 hover:border-green-400">${c}</button>`
             ).join('')}
           </div>
         </div>
 
         <div id="subCategoryArea" class="hidden">
-          <label class="text-sm font-medium text-gray-700">詳細分類</label>
-          <div id="subCategoryBtns" class="grid grid-cols-2 gap-2 mt-2"></div>
+          <label class="text-base font-bold text-gray-700 block mb-3">🔍 詳細分類</label>
+          <div id="subCategoryBtns" class="grid grid-cols-2 gap-3"></div>
         </div>
 
         <div>
-          <label class="text-sm font-medium text-gray-700">発生状況 <span class="text-red-500">*</span></label>
-          <textarea id="situation" rows="3" class="w-full mt-1 border border-gray-200 rounded-lg p-3 text-sm" placeholder="何が起きたか記載してください"></textarea>
+          <label class="text-base font-bold text-gray-700 block mb-2">📝 発生状況 <span class="text-red-500">*</span></label>
+          <textarea id="situation" rows="3" class="w-full border-2 border-gray-200 rounded-xl p-3 text-base focus:border-green-400 focus:outline-none" placeholder="何が起きたか記載してください"></textarea>
         </div>
 
         <div>
-          <label class="text-sm font-medium text-gray-700">対応内容</label>
-          <textarea id="response" rows="2" class="w-full mt-1 border border-gray-200 rounded-lg p-3 text-sm" placeholder="任意"></textarea>
+          <label class="text-base font-bold text-gray-700 block mb-2">🩺 対応内容</label>
+          <textarea id="response" rows="2" class="w-full border-2 border-gray-200 rounded-xl p-3 text-base focus:border-green-400 focus:outline-none" placeholder="任意"></textarea>
         </div>
 
         <div>
-          <label class="text-sm font-medium text-gray-700">再発防止策</label>
-          <textarea id="prevention" rows="2" class="w-full mt-1 border border-gray-200 rounded-lg p-3 text-sm" placeholder="任意"></textarea>
+          <label class="text-base font-bold text-gray-700 block mb-2">💡 再発防止策</label>
+          <textarea id="prevention" rows="2" class="w-full border-2 border-gray-200 rounded-xl p-3 text-base focus:border-green-400 focus:outline-none" placeholder="任意"></textarea>
         </div>
 
-        <div class="flex items-center gap-2">
-          <input type="checkbox" id="shareOther" class="w-4 h-4">
-          <label for="shareOther" class="text-sm text-gray-700">他部署へ共有する</label>
+        <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
+          <input type="checkbox" id="shareOther" class="w-5 h-5">
+          <label for="shareOther" class="text-base text-gray-700">他部署へ共有する</label>
         </div>
 
-        <button onclick="submitReport()" class="w-full bg-green-500 text-white rounded-xl py-4 font-bold text-lg shadow">
+        <button onclick="submitReport()" class="w-full bg-green-500 text-white rounded-xl py-4 font-bold text-lg shadow-lg">
           報告する 🌱
         </button>
       </div>
@@ -294,6 +298,7 @@ const subCategories = {
   '転倒・転落': ['立ち上がり','歩行','車椅子','ベッド','トイレ'],
   '移動・移乗': ['ベッド⇔車椅子','トイレ移乗','入浴移乗'],
   '食事・服薬': ['誤嚥','むせ','配薬ミス','飲み忘れ'],
+  '皮膚・外傷': ['打撲','内出血','擦り傷','裂傷','褥瘡'],
   '利用者行動': ['離棟','不穏','自己抜去'],
   '環境・設備': ['床','手すり','車椅子','福祉用具']
 };
@@ -303,11 +308,9 @@ let selectedValues = {};
 function selectOption(btn, field) {
   const parent = btn.parentElement;
   parent.querySelectorAll('.option-btn').forEach(b => {
-    b.classList.remove('bg-green-500','text-white');
-    b.classList.add('border-gray-200','text-gray-600');
+    b.classList.remove('selected');
   });
-  btn.classList.add('bg-green-500','text-white');
-  btn.classList.remove('border-gray-200','text-gray-600');
+  btn.classList.add('selected');
   selectedValues[field] = btn.dataset.value;
 }
 
@@ -318,7 +321,7 @@ function selectCategory(btn, category) {
   if (subCategories[category]) {
     area.classList.remove('hidden');
     btns.innerHTML = subCategories[category].map(s =>
-      `<button onclick="selectOption(this,'subCategory')" data-value="${s}" class="option-btn border border-gray-200 rounded-lg py-2 text-sm text-gray-600 hover:bg-green-50">${s}</button>`
+      `<button onclick="selectOption(this,'subCategory')" data-value="${s}" class="option-btn border-2 border-gray-200 rounded-xl py-3 text-base text-gray-600 hover:border-green-400">${s}</button>`
     ).join('');
   } else {
     area.classList.add('hidden');
@@ -380,8 +383,8 @@ async function showLibrary(area) {
     <div class="p-4">
       <h2 class="text-lg font-bold text-gray-700 mb-4">📚 ヒヤリ図書館</h2>
       <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
-        <input id="searchKeyword" type="text" placeholder="キーワード検索" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2">
-        <button onclick="searchReports()" class="w-full bg-green-500 text-white rounded-lg py-2 text-sm font-medium">検索</button>
+        <input id="searchKeyword" type="text" placeholder="キーワード検索" class="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-base mb-2 focus:border-green-400 focus:outline-none">
+        <button onclick="searchReports()" class="w-full bg-green-500 text-white rounded-xl py-3 text-base font-medium">検索</button>
       </div>
       <div id="reportList" class="space-y-3"></div>
     </div>
@@ -462,12 +465,12 @@ async function showAnalysis(area) {
     function renderBar(data) {
       const max = Math.max(...Object.values(data), 1);
       return Object.entries(data).map(([k, v]) => `
-        <div class="flex items-center gap-2 mb-2">
-          <span class="text-xs text-gray-600 w-20 shrink-0">${k}</span>
-          <div class="flex-1 bg-gray-100 rounded-full h-4">
-            <div class="bg-green-400 h-4 rounded-full" style="width:${(v/max*100).toFixed(0)}%"></div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-sm text-gray-600 w-24 shrink-0">${k}</span>
+          <div class="flex-1 bg-gray-100 rounded-full h-5">
+            <div class="bg-green-400 h-5 rounded-full" style="width:${(v/max*100).toFixed(0)}%"></div>
           </div>
-          <span class="text-xs text-gray-600 w-6 text-right">${v}</span>
+          <span class="text-sm font-bold text-gray-600 w-6 text-right">${v}</span>
         </div>
       `).join('');
     }
