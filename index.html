@@ -10,6 +10,8 @@
     .garden-bg { background: linear-gradient(180deg, #87CEEB 0%, #98FB98 60%, #90EE90 100%); }
     .option-btn { transition: all 0.15s; }
     .option-btn.selected { background-color: #16a34a !important; color: white !important; border-color: #16a34a !important; font-weight: bold; }
+    .nice-btn { transition: all 0.2s; }
+    .nice-btn.liked { background-color: #fef3c7; border-color: #f59e0b; color: #d97706; }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -20,7 +22,6 @@
     <h1 class="text-2xl font-bold text-center text-green-600 mb-2">🌸 ヒヤリポン2.0</h1>
     <p class="text-center text-gray-500 text-sm mb-6">安全文化を育てよう</p>
 
-    <!-- ユニット選択（初回のみ） -->
     <div id="unitSelectArea">
       <p class="text-sm font-medium text-gray-700 mb-2">ユニットを選択してください</p>
       <div class="grid grid-cols-3 gap-2 mb-4">
@@ -36,7 +37,6 @@
       </div>
     </div>
 
-    <!-- 職員選択 -->
     <div id="staffSelectArea" class="hidden">
       <p class="text-sm text-gray-500 mb-1">ユニット</p>
       <p id="unitLabel" class="text-lg font-bold text-green-600 mb-4"></p>
@@ -50,7 +50,6 @@
 <!-- メイン画面 -->
 <div id="mainScreen" class="hidden min-h-screen flex flex-col">
 
-  <!-- ヘッダー -->
   <div class="bg-green-600 text-white px-4 py-3 flex items-center justify-between">
     <div>
       <p class="text-xs opacity-80" id="headerUnit"></p>
@@ -59,10 +58,8 @@
     <button onclick="logout()" class="text-xs bg-green-700 px-3 py-1 rounded-full">ログアウト</button>
   </div>
 
-  <!-- コンテンツエリア -->
   <div id="contentArea" class="flex-1 overflow-y-auto pb-20"></div>
 
-  <!-- ボトムナビ -->
   <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2">
     <button onclick="showPage('garden')" class="nav-btn flex flex-col items-center text-xs text-gray-500 px-2">
       <span class="text-xl">🏡</span><span>お庭</span>
@@ -122,7 +119,6 @@ async function showStaffSelect() {
     const json = await res.json();
     staffList.innerHTML = '';
 
-    // 専門職は全ユニット表示、それ以外は所属ユニットのみ
     let filtered = json.data;
     if (currentUnit !== '専門職') {
       filtered = json.data.filter(s => s.unit === currentUnit);
@@ -281,11 +277,6 @@ function showReport(area) {
           <textarea id="prevention" rows="2" class="w-full border-2 border-gray-200 rounded-xl p-3 text-base focus:border-green-400 focus:outline-none" placeholder="任意"></textarea>
         </div>
 
-        <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
-          <input type="checkbox" id="shareOther" class="w-5 h-5">
-          <label for="shareOther" class="text-base text-gray-700">他部署へ共有する</label>
-        </div>
-
         <button onclick="submitReport()" class="w-full bg-green-500 text-white rounded-xl py-4 font-bold text-lg shadow-lg">
           報告する 🌱
         </button>
@@ -357,7 +348,7 @@ async function submitReport() {
         situation: situation,
         response: document.getElementById('response').value,
         prevention: document.getElementById('prevention').value,
-        shareOther: document.getElementById('shareOther').checked
+        shareOther: false
       })
     });
     const json = await res.json();
@@ -403,19 +394,51 @@ async function searchReports() {
       list.innerHTML = '<p class="text-center text-gray-400 text-sm">報告がありません</p>';
       return;
     }
-    list.innerHTML = json.data.slice(0,20).map(r => `
-      <div class="bg-white rounded-xl shadow-sm p-4">
-        <div class="flex justify-between items-start mb-2">
-          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">${r.category}</span>
-          <span class="text-xs text-gray-400">${r.unit}</span>
+
+    // ナイスヒヤリのカウントをローカルストレージから取得
+    const niceMap = JSON.parse(localStorage.getItem('niceHiyari') || '{}');
+
+    list.innerHTML = json.data.slice(0,20).map(r => {
+      const niceCount = niceMap[r.id] ? niceMap[r.id].count : 0;
+      const liked = niceMap[r.id] ? niceMap[r.id].liked : false;
+      return `
+        <div class="bg-white rounded-xl shadow-sm p-4">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">${r.category}</span>
+            <span class="text-xs text-gray-400">${r.unit}</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">${r.situation}</p>
+          ${r.prevention ? `<p class="text-xs text-blue-600 mb-3">💡 ${r.prevention}</p>` : ''}
+          <button onclick="toggleNice('${r.id}', this)" class="nice-btn flex items-center gap-2 border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium text-gray-500 ${liked ? 'liked' : ''}">
+            <span>👍</span>
+            <span>ナイスヒヤリ！</span>
+            <span class="nice-count font-bold">${niceCount > 0 ? niceCount : ''}</span>
+          </button>
         </div>
-        <p class="text-sm text-gray-700">${r.situation}</p>
-        ${r.prevention ? `<p class="text-xs text-blue-600 mt-2">💡 ${r.prevention}</p>` : ''}
-      </div>
-    `).join('');
+      `;
+    }).join('');
   } catch(e) {
     list.innerHTML = '<p class="text-center text-red-400 text-sm">読み込みに失敗しました</p>';
   }
+}
+
+function toggleNice(reportId, btn) {
+  const niceMap = JSON.parse(localStorage.getItem('niceHiyari') || '{}');
+  if (!niceMap[reportId]) niceMap[reportId] = { count: 0, liked: false };
+
+  if (niceMap[reportId].liked) {
+    niceMap[reportId].count = Math.max(0, niceMap[reportId].count - 1);
+    niceMap[reportId].liked = false;
+    btn.classList.remove('liked');
+  } else {
+    niceMap[reportId].count += 1;
+    niceMap[reportId].liked = true;
+    btn.classList.add('liked');
+  }
+
+  const countEl = btn.querySelector('.nice-count');
+  countEl.textContent = niceMap[reportId].count > 0 ? niceMap[reportId].count : '';
+  localStorage.setItem('niceHiyari', JSON.stringify(niceMap));
 }
 
 // みんなの森
