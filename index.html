@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ヒヤリポン2.0</title>
+
+  <!-- PWA manifest（インライン生成） -->
+  <link rel="manifest" id="manifestLink">
+
+  <!-- iOSホーム画面追加対応 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ヒヤリポン">
+  <link rel="apple-touch-icon" id="appleIcon">
+
+  <!-- テーマカラー -->
+  <meta name="theme-color" content="#16a34a">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Hiragino Sans', 'Meiryo', sans-serif; }
@@ -88,6 +101,90 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbw5A4vzZ8cmQKnD_WLG7gUS
 let currentUnit = '';
 let currentStaff = null;
 
+// ============================================================
+// PWA初期化
+// ============================================================
+(function initPWA() {
+  // SVGアイコンをBase64で生成（外部ファイル不要）
+  const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+    <rect width="192" height="192" rx="32" fill="#16a34a"/>
+    <text x="96" y="130" font-size="110" text-anchor="middle">🌸</text>
+  </svg>`;
+  const iconDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcon)));
+
+  // apple-touch-icon にセット
+  document.getElementById('appleIcon').href = iconDataUrl;
+
+  // manifest.json をBlobで生成しリンク
+  const manifest = {
+    name: 'ヒヤリポン2.0',
+    short_name: 'ヒヤリポン',
+    description: '安全文化を育てるヒヤリハット報告アプリ',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#f9fafb',
+    theme_color: '#16a34a',
+    lang: 'ja',
+    icons: [
+      { src: iconDataUrl, sizes: '192x192', type: 'image/svg+xml' },
+      { src: iconDataUrl, sizes: '512x512', type: 'image/svg+xml' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  document.getElementById('manifestLink').href = URL.createObjectURL(blob);
+
+  // Service Worker 登録
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+const CACHE = 'hiyaripon-v1';
+const ASSETS = ['/'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+
+  // GAS（外部API）はキャッシュしない・必ずネットワーク
+  if (url.hostname.includes('script.google.com')) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
+  // アプリ本体：ネットワーク優先、失敗時キャッシュ
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
+  );
+});
+    `;
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl)
+      .then(() => console.log('SW registered'))
+      .catch(err => console.warn('SW error:', err));
+  }
+})();
+
+// ============================================================
+// アプリ本体
+// ============================================================
 window.onload = function() {
   const savedUnit = localStorage.getItem('hiyariUnit');
   if (savedUnit) {
