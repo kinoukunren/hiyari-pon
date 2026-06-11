@@ -221,7 +221,7 @@ let currentStaff = null;
   document.getElementById('manifestLink').href = URL.createObjectURL(blob);
   if ('serviceWorker' in navigator) {
     const swCode = `
-const CACHE = 'hiyaripon-v1';
+const CACHE = 'hiyaripon-v2';
 const ASSETS = ['/'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -609,12 +609,12 @@ function showReport(area) {
 }
 
 const subCategories = {
-  '転倒・転落': ['立ち上がり','歩行','車椅子','ベッド','トイレ'],
-  '移動・移乗': ['ベッド⇔車椅子','トイレ移乗','入浴移乗'],
-  '食事・服薬': ['誤嚥','むせ','配薬ミス','飲み忘れ'],
-  '皮膚・外傷': ['打撲','内出血','擦り傷','裂傷','褥瘡'],
-  '利用者行動': ['離棟','不穏','自己抜去'],
-  '環境・設備': ['床','手すり','車椅子','福祉用具']
+  '転倒・転落': ['立ち上がり','歩行','車椅子','ベッド','トイレ','その他'],
+  '移動・移乗': ['ベッド⇔車椅子','トイレ移乗','入浴移乗','その他'],
+  '食事・服薬': ['誤嚥','むせ','配薬ミス','飲み忘れ','その他'],
+  '皮膚・外傷': ['打撲','内出血','擦り傷','裂傷','褥瘡','その他'],
+  '利用者行動': ['離棟','不穏','自己抜去','その他'],
+  '環境・設備': ['床','手すり','車椅子','福祉用具','その他']
 };
 
 let selectedValues = {};
