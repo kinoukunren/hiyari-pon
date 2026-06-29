@@ -205,7 +205,7 @@ let currentStaff = null;
   document.getElementById('manifestLink').href = URL.createObjectURL(blob);
   if ('serviceWorker' in navigator) {
     const swCode = `
-const CACHE = 'hiyaripon-v5';
+const CACHE = 'hiyaripon-v7';
 const ASSETS = ['/'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -725,13 +725,25 @@ async function searchReports() {
     
     let filteredReports = reportsJson.data;
     if (libraryFilters.unit) {
-      filteredReports = filteredReports.filter(r => r.unit === libraryFilters.unit);
+      filteredReports = filteredReports.filter(r => {
+        const rUnit = r.unit ? String(r.unit).trim().toUpperCase() : '';
+        const fUnit = libraryFilters.unit ? String(libraryFilters.unit).trim().toUpperCase() : '';
+        return rUnit === fUnit;
+      });
     }
     if (libraryFilters.location) {
-      filteredReports = filteredReports.filter(r => r.location === libraryFilters.location);
+      filteredReports = filteredReports.filter(r => {
+        const rLoc = r.location ? String(r.location).trim() : '';
+        const fLoc = libraryFilters.location ? String(libraryFilters.location).trim() : '';
+        return rLoc === fLoc;
+      });
     }
     if (libraryFilters.timeSlot) {
-      filteredReports = filteredReports.filter(r => r.timeSlot === libraryFilters.timeSlot);
+      filteredReports = filteredReports.filter(r => {
+        const rTime = r.timeSlot ? String(r.timeSlot).trim() : '';
+        const fTime = libraryFilters.timeSlot ? String(libraryFilters.timeSlot).trim() : '';
+        return rTime === fTime;
+      });
     }
     if (filteredReports.length === 0) {
       list.innerHTML = '<p class="text-center text-gray-400 text-sm">報告がありません</p>'; return;
@@ -739,10 +751,11 @@ async function searchReports() {
     list.innerHTML = filteredReports.slice(0,20).map(r => {
       const niceCount = counts[r.id] || 0;
       const liked = likedByMe[r.id] || false;
+      const hasCategory = r.category && r.category.trim() !== '未分類' && r.category.trim() !== '';
       return `
         <div class="bg-white rounded-xl shadow-sm p-4">
           <div class="flex justify-between items-start mb-2">
-            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">${r.category}</span>
+            ${hasCategory ? `<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">${r.category}</span>` : '<span></span>'}
             <span class="text-xs text-gray-400">${r.unit}</span>
           </div>
           <p class="text-sm text-gray-700 mb-3">${r.situation}</p>
