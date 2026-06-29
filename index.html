@@ -205,7 +205,7 @@ let currentStaff = null;
   document.getElementById('manifestLink').href = URL.createObjectURL(blob);
   if ('serviceWorker' in navigator) {
     const swCode = `
-const CACHE = 'hiyaripon-v4';
+const CACHE = 'hiyaripon-v5';
 const ASSETS = ['/'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -292,15 +292,19 @@ function logout() {
   document.getElementById('loginScreen').classList.remove('hidden');
 }
 let libraryFilters = { unit: '', location: '', timeSlot: '' }; // ライブラリの絞り込み状態
-function showPage(page, filters) {
+function showPage(page, filterParam) {
   const area = document.getElementById('contentArea');
   if (page === 'garden') showGarden(area);
   if (page === 'report') showReport(area);
   if (page === 'library') {
-    if (filters) {
-      if (filters.unit !== undefined) libraryFilters.unit = filters.unit;
-      if (filters.location !== undefined) libraryFilters.location = filters.location;
-      if (filters.timeSlot !== undefined) libraryFilters.timeSlot = filters.timeSlot;
+    if (filterParam) {
+      if (filterParam.filterKey && filterParam.value !== undefined) {
+        libraryFilters[filterParam.filterKey] = filterParam.value;
+      } else {
+        if (filterParam.unit !== undefined) libraryFilters.unit = filterParam.unit;
+        if (filterParam.location !== undefined) libraryFilters.location = filterParam.location;
+        if (filterParam.timeSlot !== undefined) libraryFilters.timeSlot = filterParam.timeSlot;
+      }
     } else {
       libraryFilters = { unit: '', location: '', timeSlot: '' };
     }
@@ -815,7 +819,7 @@ async function showAnalysis(area) {
     function renderBar(data, filterKey) {
       const max = Math.max(...Object.values(data), 1);
       return Object.entries(data).map(([k, v]) => `
-        <div onclick="showPage('library', { [ '${filterKey}' ]: '${k}' })" class="flex items-center gap-2 mb-3 cursor-pointer hover:bg-green-50 rounded p-1 transition">
+        <div onclick="showPage('library', { filterKey: '${filterKey}', value: '${k}' })" class="flex items-center gap-2 mb-3 cursor-pointer hover:bg-green-50 rounded p-1 transition">
           <span class="text-sm text-gray-600 w-24 shrink-0">${k}</span>
           <div class="flex-1 bg-gray-100 rounded-full h-5">
             <div class="bg-green-400 h-5 rounded-full" style="width:${(v/max*100).toFixed(0)}%"></div>
