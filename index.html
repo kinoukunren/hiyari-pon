@@ -205,7 +205,7 @@ let currentStaff = null;
   document.getElementById('manifestLink').href = URL.createObjectURL(blob);
   if ('serviceWorker' in navigator) {
     const swCode = `
-const CACHE = 'hiyaripon-v7';
+const CACHE = 'hiyaripon-v8';
 const ASSETS = ['/'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -840,12 +840,56 @@ async function showAnalysis(area) {
           <span class="text-sm font-bold text-gray-600 w-6 text-right">${v}</span>
         </div>`).join('');
     }
+    // クロス集計テーブル(ヒートマップ)の生成
+    const timeSlots = ['早朝', '午前', '午後', '夕方', '夜間'];
+    const defaultLocations = ['居室', 'トイレ', '浴室', '食堂', '廊下', 'その他'];
+    const allLocations = Array.from(new Set([...defaultLocations, ...Object.keys(d.byLocation)]));
+    const heatmapRows = allLocations.map(loc => {
+      const cells = timeSlots.map(slot => {
+        const key = `${slot}_${loc}`;
+        const count = d.heatmap[key] || 0;
+        
+        let bgClass = 'bg-gray-50 text-gray-300';
+        if (count >= 5) bgClass = 'bg-green-600 text-white font-bold';
+        else if (count >= 3) bgClass = 'bg-green-400 text-white font-bold';
+        else if (count >= 1) bgClass = 'bg-green-100 text-green-800 font-bold';
+        
+        return `
+          <td onclick="showPage('library', { location: '${loc}', timeSlot: '${slot}' })" 
+              class="p-2 cursor-pointer border border-gray-100 hover:border-green-500 rounded transition text-center ${bgClass}">
+            ${count > 0 ? count : '-'}
+          </td>`;
+      }).join('');
+      
+      return `
+        <tr class="border-b border-gray-100">
+          <td class="py-2 px-1 text-left font-medium text-gray-600">${loc}</td>
+          ${cells}
+        </tr>`;
+    }).join('');
+    const heatmapHtml = `
+      <div class="bg-white rounded-xl shadow-sm p-4 overflow-x-auto">
+        <h3 class="font-bold text-gray-700 mb-1">🕒 時間帯 × 場所のクロス絞り込み</h3>
+        <p class="text-xs text-gray-400 mb-3">セルをタッチすると、その場所と時間帯で直接絞り込み表示します。</p>
+        <table class="w-full text-center border-collapse text-xs table-fixed min-w-[320px]">
+          <thead>
+            <tr class="bg-gray-50 text-gray-500 font-medium">
+              <th class="py-2 px-1 text-left w-16">場所</th>
+              ${timeSlots.map(slot => `<th class="py-2 px-1">${slot}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${heatmapRows}
+          </tbody>
+        </table>
+      </div>`;
     area.innerHTML = `
-      <div class="p-4 space-y-4">
+      <div class="p-4 space-y-4 pb-20">
         <h2 class="text-lg font-bold text-gray-700">📊 分析</h2>
         <div class="bg-white rounded-xl shadow-sm p-4"><h3 class="font-bold text-gray-700 mb-3">発生場所別</h3>${renderBar(d.byLocation, 'location')}</div>
         <div class="bg-white rounded-xl shadow-sm p-4"><h3 class="font-bold text-gray-700 mb-3">時間帯別</h3>${renderBar(d.byTimeSlot, 'timeSlot')}</div>
         <div class="bg-white rounded-xl shadow-sm p-4"><h3 class="font-bold text-gray-700 mb-3">ユニット別</h3>${renderBar(d.byUnit, 'unit')}</div>
+        ${heatmapHtml}
       </div>`;
   } catch(e) {
     area.innerHTML = '<div class="p-4 text-center text-red-400">読み込みに失敗しました</div>';
